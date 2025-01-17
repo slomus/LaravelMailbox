@@ -26,39 +26,50 @@ class EmailAccountController extends Controller
         return response()->json($emailAccount, 201);
     }
 
-    // public function getAllFolders()
-    // {
-    //     $emailAccounts = EmailAccount::where('user_id', auth()->id())->get();
+    public function getAllFolders($user_id)
+    {
+        $emailAccounts = EmailAccount::where('user_id', $user_id)->get();
+        $allFolders = [];
 
-    //     $allFolders = [];
-    //     foreach ($emailAccounts as $emailAccount) {
-    //         try {
-    //             $client = new Client([
-    //                 'host' => $emailAccount->imap_host,
-    //                 'port' => $emailAccount->imap_port,
-    //                 'encryption' => $emailAccount->encryption,
-    //                 'validate_cert' => true,
-    //                 'username' => $emailAccount->email,
-    //                 'password' => decrypt($emailAccount->password),
-    //                 'protocol' => 'imap',
-    //             ]);
+        foreach($emailAccounts as $emailAccount){
+            try{
+                $client = Client::make([
+                    'host' => $emailAccount->imap_host,
+                    'port' => $emailAccount->imap_port,
+                    'encryption' => $emailAccount->encryption,
+                    'validate_cert' => true,
+                    'username' => $emailAccount->email,
+                    'password' => decrypt($emailAccount->password),
+                    'protocol' => 'imap',
+                ]);
 
-    //             $client->connect();
-    //             $folders = $client->getFolders();
+                $client->connect();
+                $folders = $client->getFolders($hierarchical = true);
+                // echo "<pre>";
+                // die(var_dump($folders->path));
 
-    //             $allFolders[$emailAccount->email] = $folders->map(function ($folder) {
-    //                 return [
-    //                     'name' => $folder->name,
-    //                     'path' => $folder->path,
-    //                     'messages' => $folder->messages()->all()->count(),
-    //                 ];
-    //             });
-    //         } catch (Exception $e) {
-    //             $allFolders[$emailAccount->email] = ['error' => $e->getMessage()];
-    //         }
-    //     }
+                foreach($folders as $folder){
+                    $messages = $folder->messages()->all()->limit(5, 0)->get();
+                    $allFolders[$emailAccount->email][$folder->name] = [
+                        'name' => $folder->name,
+                        'path' => $folder->path,
+                        'messages' => $messages->map(function($message) {
+                            return [
+                                'uid' => $message->getUid(),
+                                'subject' => $message->getSubject(),
+                                'header' => $message->getHeader(),
+                                'from' => $message->getFrom()[0]->mail,
+                                'body' => $message->getHTMLBody(),
+                            ];
+                        }),
+                    ];
+                }
+            }catch (Exception $e){
+                $allFolders[$emailAccount->email] = ['error' => $e->getMessage()];
+            }
 
-    //     return response()->json($allFolders);
-    // }
+        }
 
+        return response()->json($allFolders);
+    }
 }

@@ -30,9 +30,6 @@ class ImapTest extends Command
      */
      public function handle() {
         $emailAccount = EmailAccount::where('user_id', 1)->first();
-        //dd($emailAccount);
-        // echo $emailAccount->imap_host;
-        // die();
         try{
             $client = Client::make([
                 'host' => $emailAccount->imap_host,
