@@ -16,10 +16,17 @@ import {
 } from 'lucide-react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 import JsonNode from './JsonNode';
+import { PageProps } from '@/types';
 
-const Home: React.FC = () => {
+
+export default function Home({
+  allFolders,
+  status
+}: PageProps<{ allFolders?: any, status?: string}>){
+  console.log(allFolders);
+  
   const user = usePage().props.auth.user;
-  //const [jsonData, setJsonData] = useState(exampleJson);
+  const [jsonData, setJsonData] = useState(allFolders);
 
   const folders = [
     { name: 'Skrzynka odbiorcza', icon: <Mail className="w-4 h-4" />, count: '1' },
@@ -36,8 +43,8 @@ const Home: React.FC = () => {
           <Menu className="w-6 h-6 text-gray-600 dark:text-gray-400" />
           <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
             <NavLink
-                    href={route('dashboard')}
-                    active={route().current('dashboard')}
+                    href={route('poczta.folders')}
+                    active={route().current('poczta.folders')}
             >
                 Poczta
             </NavLink>
@@ -69,7 +76,13 @@ const Home: React.FC = () => {
                   href={route('profile.edit')}
                   className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  Profile
+                  Konto
+                </Dropdown.Link>
+                <Dropdown.Link
+                  href={route('profiles.email')}
+                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  Konto e-mail
                 </Dropdown.Link>
                 <Dropdown.Link
                   href={route('logout')}
@@ -77,7 +90,7 @@ const Home: React.FC = () => {
                   as="button"
                   className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
-                  Log Out
+                  Wyloguj się
                 </Dropdown.Link>
               </Dropdown.Content>
             </Dropdown>
@@ -108,11 +121,10 @@ const Home: React.FC = () => {
           </nav>
         </aside>
         <main className="flex-1 overflow-auto p-4">
-          {/* //<JsonNode data={jsonData} /> */}
+          <JsonNode data={jsonData} />
         </main>
       </div>
     </div>
   );
 };
 
-export default Home;
