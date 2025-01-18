@@ -28,6 +28,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profiles/email', [EmailAccountController::class, 'edit'])->name('profiles.email');
     Route::post('/profiles/email', [EmailAccountController::class, 'store'])->name('profiles.store');
     Route::patch('/profiles/email', [EmailAccountController::class, 'update'])->name('profiles.update');
+    Route::patch('profiles/email/{id}', [EmailAccountController::class, 'update'])->name('email-accounts.update');
+    Route::delete('profiles/email/{id}', [EmailAccountController::class, 'destroy'])->name('email-accounts.destroy');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

@@ -15,9 +15,9 @@ class EmailTestSeeder extends Seeder
     {
         EmailAccount::create([
             'user_id' => 1,
-            'email' => 'XXX', //twój email
-            'password' => encrypt('XXX'), //twoje hasło
-            'imap_host' => 'XXX', //twoj serwer
+            'email' => 'michal.grzonkowski21@gmail.com', //twój email
+            'password' => encrypt('qiosiarrykcauvyb'), //twoje hasło
+            'imap_host' => 'imap.gmail.com', //twoj serwer
             'imap_port' => 993, //może być inny
             'encryption' => 'ssl',
         ]);
