@@ -3,28 +3,30 @@ import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import NavLink from '@/Components/NavLink';
-import { Search, Menu, Mail, Send, Trash2, Star, Archive, Settings } from 'lucide-react';
+//import exampleJson from './exmaple.json';
+import {
+  Mail,
+  Send,
+  Star,
+  Archive,
+  Trash2,
+  Settings,
+  Menu,
+  Search,
+} from 'lucide-react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
+import JsonNode from './JsonNode';
 
-const Home = () => {
+const Home: React.FC = () => {
   const user = usePage().props.auth.user;
-  const folders = [
-    { name: 'Skrzynka odbiorcza', icon: <Mail className="w-4 h-4" />, count: 'x' },
-    { name: 'Wysłane', icon: <Send className="w-4 h-4" />, count: 'x' },
-    { name: 'Oznaczone gwiazdką', icon: <Star className="w-4 h-4" />, count: 'x' },
-    { name: 'Archiwum', icon: <Archive className="w-4 h-4" />, count: 'x' },
-    { name: 'Kosz', icon: <Trash2 className="w-4 h-4" />, count: 'x'  },
-  ];
+  //const [jsonData, setJsonData] = useState(exampleJson);
 
-  const emails = [
-      {
-          id: 1,
-          sender: 'test_wysylajacy',
-          subject: 'temat',
-          preview: 'test_preview',
-          time: '00:00',
-          unread: true
-      }
+  const folders = [
+    { name: 'Skrzynka odbiorcza', icon: <Mail className="w-4 h-4" />, count: '1' },
+    { name: 'Wysłane', icon: <Send className="w-4 h-4" />, count: '0' },
+    { name: 'Oznaczone gwiazdką', icon: <Star className="w-4 h-4" />, count: '0' },
+    { name: 'Archiwum', icon: <Archive className="w-4 h-4" />, count: '0' },
+    { name: 'Kosz', icon: <Trash2 className="w-4 h-4" />, count: '0' },
   ];
 
   return (
@@ -84,7 +86,6 @@ const Home = () => {
           </button>
         </div>
       </header>
-
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-4">
           <button className="w-full bg-blue-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 dark:hover:bg-blue-500">
@@ -106,35 +107,8 @@ const Home = () => {
             ))}
           </nav>
         </aside>
-
-        <main className="flex-1 overflow-auto">
-          <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {emails.map((email) => (
-              <div
-                key={email.id}
-                className={`flex items-center px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
-                  email.unread ? 'bg-blue-50 dark:bg-blue-900' : 'bg-white dark:bg-gray-800'
-                }`}
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p
-                      className={`text-sm ${email.unread ? 'font-semibold' : 'font-medium'} text-gray-900 dark:text-gray-200`}
-                    >
-                      {email.sender}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{email.time}</p>
-                  </div>
-                  <h3
-                    className={`text-sm ${email.unread ? 'font-semibold' : 'font-medium'} text-gray-900 dark:text-gray-200 mt-1`}
-                  >
-                    {email.subject}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate mt-1">{email.preview}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <main className="flex-1 overflow-auto p-4">
+          {/* //<JsonNode data={jsonData} /> */}
         </main>
       </div>
     </div>
