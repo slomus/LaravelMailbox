@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EmailAccountController extends Controller
 {
@@ -51,59 +52,55 @@ class EmailAccountController extends Controller
     }
 
     public function getAllFolders(Request $request)
-{
-    $user = $request->user();
-
-    if (!$user) {
-        return response()->json(['error' => 'User not authenticated'], 401);
-    }
-
-    $emailAccounts = EmailAccount::where('user_id', $user->id)->get();
-    $allFolders = [];
-
-    foreach($emailAccounts as $emailAccount){
-        try {
-            $client = Client::make([
-                'host' => $emailAccount->imap_host,
-                'port' => $emailAccount->imap_port,
-                'encryption' => $emailAccount->encryption,
-                'validate_cert' => true,
-                'username' => $emailAccount->email,
-                'password' => decrypt($emailAccount->password),
-                'protocol' => 'imap',
-            ]);
-
-            $client->connect();
-            $folders = $client->getFolders(true);
-
-            foreach($folders as $folder){
-                $messages = $folder->messages()->all()->limit(1, 0)->get();
-                $allFolders[$emailAccount->email][$folder->name] = [
-                    'name' => $folder->name,
-                    'path' => $folder->path,
-                    'messages' => $messages->map(function($message) {
-                        return [
-                            'uid' => $message->getUid(),
-                            'subject' => $message->getSubject(),
-                            'from' => $message->getFrom()[0]->mail,
-                            'body' => $message->getBodyText(),
-                        ];
-                    })->toArray(),
-                ];
-            }
-        } catch (Exception $e) {
-            $allFolders[$emailAccount->email] = ['error' => $e->getMessage()];
-        }
-    }
-
-    return Inertia::render('Home', [
-        'allFolders' => $allFolders,
-    ]);
-}
-
-
-
-
+    {
+        $emailAccounts = EmailAccount::where('user_id', $request->user()->id)->get();
+        $allFolders = [];
     
-
+        foreach($emailAccounts as $emailAccount){
+            try{
+                $client = Client::make([
+                    'host' => $emailAccount->imap_host,
+                    'port' => $emailAccount->imap_port,
+                    'encryption' => $emailAccount->encryption,
+                    'validate_cert' => true,
+                    'username' => $emailAccount->email,
+                    'password' => decrypt($emailAccount->password),
+                    'protocol' => 'imap',
+                ]);
+    
+                $client->connect();
+                $folders = $client->getFolders($hierarchical = true);
+    
+                foreach($folders as $folder){
+                    $messages = $folder->messages()->all()->limit(1, 0)->get();
+                    $allFolders[$emailAccount->email][$folder->name] = [
+                        'name' => $folder->name,
+                        'path' => $folder->path,
+                        'messages' => $messages->map(function ($message) {
+                            return [
+                                'uid' => $message->getUid(),
+                                'subject' => (string) $message->getSubject() ?? 'Bez tematu', // Konwertujemy na tekst
+                                'header' => $message->getHeader(),
+                                'from' => (string) $message->getFrom()[0]->mail ?? 'Brak nadawcy', // Konwertujemy na tekst
+                                'body' => (string) $message->getHTMLBody() ?? 'Brak treści', // Konwertujemy na tekst
+                            ];
+                        })->toArray(), // Zamień kolekcję na tablicę
+                    ];
+                    
+                    
+                }
+            } catch (Exception $e) {
+                $allFolders[$emailAccount->email] = ['error' => $e->getMessage()];
+            }
+        }
+    
+        // Logowanie struktury danych
+        Log::info('All Folders Data: ', $allFolders);
+    
+        return Inertia::render('Home', [
+            'allFolders' => $allFolders,
+            'status' => session('status'),
+        ]);
+    }
+    
 }

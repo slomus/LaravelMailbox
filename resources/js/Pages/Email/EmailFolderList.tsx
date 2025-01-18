@@ -20,10 +20,10 @@ type AccountFolders = {
 
 interface EmailFolderListProps {
   folders: AccountFolders;
+  onFolderClick: (messages: Message[]) => void;
 }
 
-const EmailFolderList: React.FC<EmailFolderListProps> = ({ folders }) => {
-
+const EmailFolderList: React.FC<EmailFolderListProps> = ({ folders, onFolderClick }) => {
   return (
     <div>
       {Object.keys(folders).map((email) => (
@@ -41,12 +41,19 @@ const EmailFolderList: React.FC<EmailFolderListProps> = ({ folders }) => {
           </button>
           <ul id={`folders-${email}`} className="hidden mt-2">
             {Object.keys(folders[email]).map((folderName) => (
-              <li key={folderName} className="flex items-center justify-between py-2">
+              <li
+                key={folderName}
+                className="flex items-center justify-between py-2 cursor-pointer"
+                onClick={() => {
+                  console.log('Folder messages:', folders[email][folderName].messages);
+                  onFolderClick(folders[email][folderName].messages);
+                }}
+              >
                 <div className="flex items-center">
                   <Mail className="w-4 h-4" />
                   <span className="ml-2">{folderName}</span>
                 </div>
-                <span className="text-xs bg-gray-200 rounded-full px-2 py-1">
+                <span className="text-base bg-blue-600 font-bold rounded-full px-2 py-1 min-w-8 min-h-8 justify-center items-center flex">
                   {folders[email][folderName].messages.length}
                 </span>
               </li>
