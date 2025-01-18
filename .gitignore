@@ -20,4 +20,4 @@ yarn-error.log
 /.idea
 /.vscode
 /.zed
-/app/Http/Controllers/EmailAccountController.php
+database/seeders/EmailTestSeeder.php
