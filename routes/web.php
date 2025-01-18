@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmailAccountController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -18,11 +19,13 @@ Route::get('/home', function () {
     return Inertia::render('Home');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified'])->group(function(){
+    Route::get('/poczta', [EmailAccountController::class, 'getAllFolders'])->name('poczta.folders');
+});
 
 Route::middleware('auth')->group(function () {
+    Route::get('/profiles/email', [EmailAccountController::class, 'edit'])->name('profiles.email');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

@@ -7,15 +7,26 @@ use Illuminate\Http\Request;
 use App\Models\EmailAccount;
 use Webklex\IMAP\Facades\Client;
 use Exception;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class EmailAccountController extends Controller
 {
+
+    public function edit(Request $request): Response
+    {
+        $emailAccounts = EmailAccount::where('user_id', $request->user()->id)->get();
+        return Inertia::render('XXX', [
+            'emailAccounts' => $emailAccounts,
+            'status' => session('status'),
+        ]);
+    }
     public function store(EmailCreateRequest $emailCreateRequest)
     {
         $validated = $emailCreateRequest->validated();
 
         $emailAccount = EmailAccount::create([
-            'user_id' => auth()->id(),
+            'user_id' => $emailCreateRequest->user()->id,
             'email' => $validated['email'],
             'password' => encrypt($validated['password']),
             'imap_host' => $validated['imap_host'],
@@ -26,9 +37,9 @@ class EmailAccountController extends Controller
         return response()->json($emailAccount, 201);
     }
 
-    public function getAllFolders($user_id)
+    public function getAllFolders(Request $request)
     {
-        $emailAccounts = EmailAccount::where('user_id', $user_id)->get();
+        $emailAccounts = EmailAccount::where('user_id', $request->user()->id)->get();
         $allFolders = [];
 
         foreach($emailAccounts as $emailAccount){
@@ -45,11 +56,9 @@ class EmailAccountController extends Controller
 
                 $client->connect();
                 $folders = $client->getFolders($hierarchical = true);
-                // echo "<pre>";
-                // die(var_dump($folders->path));
 
                 foreach($folders as $folder){
-                    $messages = $folder->messages()->all()->limit(5, 0)->get();
+                    $messages = $folder->messages()->all()->limit(1, 0)->get();
                     $allFolders[$emailAccount->email][$folder->name] = [
                         'name' => $folder->name,
                         'path' => $folder->path,
@@ -70,6 +79,9 @@ class EmailAccountController extends Controller
 
         }
 
-        return response()->json($allFolders);
+        return Inertia::render('Home', [
+            'allFolders' => $allFolders,
+            'status' => session('status'),
+        ]);
     }
 }
