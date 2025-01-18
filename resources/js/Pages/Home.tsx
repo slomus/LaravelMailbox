@@ -1,24 +1,26 @@
-import React from 'react';
-import { Search, Menu, Mail, Send, Trash2, Star, Archive, Settings } from 'lucide-react';
+import React, { useState } from 'react';
+import exampleJson from './exmaple.json';
+import {
+  Mail,
+  Send,
+  Star,
+  Archive,
+  Trash2,
+  Settings,
+  Menu,
+  Search,
+} from 'lucide-react';
+import JsonNode from './JsonNode';
 
-const Home = () => {
+const Home: React.FC = () => {
+  const [jsonData, setJsonData] = useState(exampleJson);
+
   const folders = [
-    { name: 'Skrzynka odbiorcza', icon: <Mail className="w-4 h-4" />, count: 'x' },
-    { name: 'Wysłane', icon: <Send className="w-4 h-4" />, count: 'x' },
-    { name: 'Oznaczone gwiazdką', icon: <Star className="w-4 h-4" />, count: 'x' },
-    { name: 'Archiwum', icon: <Archive className="w-4 h-4" />, count: 'x' },
-    { name: 'Kosz', icon: <Trash2 className="w-4 h-4" />, count: 'x'  },
-  ];
-
-  const emails = [
-      {
-          id: 1,
-          sender: 'test_wysylajacy',
-          subject: 'temat',
-          preview: 'test_preview',
-          time: '00:00',
-          unread: true
-      }
+    { name: 'Skrzynka odbiorcza', icon: <Mail className="w-4 h-4" />, count: '1' },
+    { name: 'Wysłane', icon: <Send className="w-4 h-4" />, count: '0' },
+    { name: 'Oznaczone gwiazdką', icon: <Star className="w-4 h-4" />, count: '0' },
+    { name: 'Archiwum', icon: <Archive className="w-4 h-4" />, count: '0' },
+    { name: 'Kosz', icon: <Trash2 className="w-4 h-4" />, count: '0' },
   ];
 
   return (
@@ -42,7 +44,6 @@ const Home = () => {
           </button>
         </div>
       </header>
-
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-64 bg-white border-r border-gray-200 p-4">
           <button className="w-full bg-blue-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700">
@@ -64,31 +65,8 @@ const Home = () => {
             ))}
           </nav>
         </aside>
-
-        <main className="flex-1 overflow-auto">
-          <div className="divide-y divide-gray-200">
-            {emails.map((email) => (
-              <div
-                key={email.id}
-                className={`flex items-center px-6 py-4 hover:bg-gray-50 cursor-pointer ${
-                  email.unread ? 'bg-blue-50' : 'bg-white'
-                }`}
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className={`text-sm ${email.unread ? 'font-semibold' : 'font-medium'} text-gray-900`}>
-                      {email.sender}
-                    </p>
-                    <p className="text-sm text-gray-500">{email.time}</p>
-                  </div>
-                  <h3 className={`text-sm ${email.unread ? 'font-semibold' : 'font-medium'} text-gray-900 mt-1`}>
-                    {email.subject}
-                  </h3>
-                  <p className="text-sm text-gray-500 truncate mt-1">{email.preview}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <main className="flex-1 overflow-auto p-4">
+          <JsonNode data={jsonData} />
         </main>
       </div>
     </div>
