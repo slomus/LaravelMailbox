@@ -3,6 +3,7 @@ import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import NavLink from '@/Components/NavLink';
+import EmailFolderList from '@/Pages/Email/EmailFolderList';
 //import exampleJson from './exmaple.json';
 import {
   Mail,
@@ -105,19 +106,7 @@ export default function Home({
             Nowa wiadomość
           </button>
           <nav className="mt-6">
-            {folders.map((folder) => (
-              <a
-                key={folder.name}
-                href="#"
-                className="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
-              >
-                <div className="flex items-center space-x-3">
-                  {folder.icon}
-                  <span>{folder.name}</span>
-                </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">{folder.count}</span>
-              </a>
-            ))}
+            {/* <EmailFolderList Tutaj przekazanie danych */}
           </nav>
         </aside>
         <main className="flex-1 overflow-auto p-4">
