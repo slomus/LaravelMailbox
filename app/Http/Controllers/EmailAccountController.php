@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\EmailCreateRequest;
+use App\Http\Requests\EmailUpdateRequest;
 use Illuminate\Http\Request;
 use App\Models\EmailAccount;
 use Webklex\IMAP\Facades\Client;
 use Exception;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Auth;
 
 class EmailAccountController extends Controller
 {
@@ -26,7 +29,7 @@ class EmailAccountController extends Controller
         $validated = $emailCreateRequest->validated();
 
         $emailAccount = EmailAccount::create([
-            'user_id' => $emailCreateRequest->user()->id,
+            'user_id' => $emailCreateRequest->user()->id, //Jak by nie działało to zamienić na auth()->id()
             'email' => $validated['email'],
             'password' => encrypt($validated['password']),
             'imap_host' => $validated['imap_host'],
@@ -34,7 +37,17 @@ class EmailAccountController extends Controller
             'encryption' => $validated['encryption'] ?? 'ssl',
         ]);
 
-        return response()->json($emailAccount, 201);
+        return Redirect::route('profiles.email');
+    }
+
+    public function update(EmailUpdateRequest $emailUpdateRequest)
+    {
+        $validated = $emailUpdateRequest->validated();
+
+        $emailAccount = EmailAccount::where('user_id', $emailUpdateRequest->user()->id)->firstOrFail(); //j.w.
+        $emailAccount->update($validated);
+
+        return Redirect::route('profiles.email');
     }
 
     public function getAllFolders(Request $request)
