@@ -1,27 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import { usePage } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import EmailFolderList from '@/Pages/Email/EmailFolderList';
 import { Mail, Send, Star, Archive, Trash2, Settings, Menu, Search } from 'lucide-react';
-import JsonNode from './JsonNode';
+import JsonNode from './JsonNode'; // Upewnij się, że JsonNode jest zaimportowany
 import { PageProps } from '@/types';
+import EmailMessageView from '@/Pages/Email/EmailMessageView'; // Importuj nowy komponent
 
-export default function Home({ allFolders, status }: PageProps<{ allFolders?: any, status?: string}>) {
+export default function Home({ allFolders, status }: PageProps<{ allFolders?: any, status?: string }>) {
   const { props } = usePage();
   const user = props.auth.user;
   const [jsonData, setJsonData] = useState(allFolders);
+  const [selectedMessages, setSelectedMessages] = useState([]);
+  const [selectedMessage, setSelectedMessage] = useState(null);
 
-  console.log('allFolders:', allFolders);
-  console.log('jsonData:', jsonData);
+  const handleFolderClick = (messages) => {
+    console.log('Selected folder messages:', messages);
+    setSelectedMessages(Array.isArray(messages) ? messages : []);
+    setSelectedMessage(null);
+  };
 
-  const folders = [
-    { name: 'Skrzynka odbiorcza', icon: <Mail className="w-4 h-4" />, count: '1' },
-    { name: 'Wysłane', icon: <Send className="w-4 h-4" />, count: '0' },
-    { name: 'Oznaczone gwiazdką', icon: <Star className="w-4 h-4" />, count: '0' },
-    { name: 'Archiwum', icon: <Archive className="w-4 h-4" />, count: '0' },
-    { name: 'Kosz', icon: <Trash2 className="w-4 h-4" />, count: '0' },
-  ];
+  const handleMessageClick = (message) => {
+    console.log('Selected message:', message);
+    setSelectedMessage(message);
+  };
+
+  const handleBackClick = () => {
+    setSelectedMessage(null);
+  };
 
   if (!user) {
     return <div>Loading...</div>;
@@ -71,11 +78,29 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
             Nowa wiadomość
           </button>
           <nav className="mt-6">
-            <EmailFolderList folders={jsonData} />
+            <EmailFolderList folders={jsonData} onFolderClick={handleFolderClick} />
           </nav>
         </aside>
-        <main className="flex-1 overflow-auto p-4">
-          <JsonNode data={jsonData} />
+        <main className="flex-1 overflow-auto p-4 bg-white dark:bg-gray-800">
+          {selectedMessage ? (
+            <>
+              <button className="mb-4 bg-blue-600 text-white px-4 py-2 rounded" onClick={handleBackClick}>
+                Powrót do skrzynki
+              </button>
+              <EmailMessageView message={selectedMessage} />
+            </>
+          ) : selectedMessages.length > 0 ? (
+            <div className='bg-blue-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 dark:hover:bg-blue-500 max-w-80'>
+              {selectedMessages.map((message) => (
+                <div key={message.uid} onClick={() => handleMessageClick(message)} className="cursor-pointer">
+                  <h3>{message.subject}</h3>
+                  <p>{message.from}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <JsonNode data={jsonData} />
+          )}
         </main>
       </div>
     </div>
