@@ -15,10 +15,6 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/home', function () {
-    return Inertia::render('Home');
-});
-
 
 Route::middleware(['auth', 'verified'])->group(function(){
     Route::get('/poczta', [EmailAccountController::class, 'getAllFolders'])->name('poczta.folders');

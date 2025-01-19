@@ -72,7 +72,7 @@ class EmailAccountController extends Controller
                 $folders = $client->getFolders($hierarchical = true);
     
                 foreach($folders as $folder){
-                    $messages = $folder->messages()->all()->limit(1, 0)->get();
+                    $messages = $folder->messages()->setFetchOrder('desc')->all()->limit(5, 0)->get();
                     $allFolders[$emailAccount->email][$folder->name] = [
                         'name' => $folder->name,
                         'path' => $folder->path,
