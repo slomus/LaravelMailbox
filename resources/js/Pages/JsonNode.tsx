@@ -61,29 +61,7 @@ const JsonNode: React.FC<JsonNodeProps> = ({ data, level = 0 }) => {
     }
     return (
       <div style={{ marginLeft: indent }}>
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
-        >
-          {isExpanded ? (
-            <ChevronDown className="w-4 h-4" />
-          ) : (
-            <ChevronRight className="w-4 h-4" />
-          )}
-          <span>Object</span>
-        </button>
-        {isExpanded && (
-          <div className="ml-4">
-            {entries.map(([key, value]) => (
-              <div key={key} className="mt-1">
-                <span className="text-blue-600 dark:text-blue-400 capitalize">
-                  {key}:{" "}
-                </span>
-                <JsonNode data={value} level={level + 1} />
-              </div>
-            ))}
-          </div>
-        )}
+        {/* TUTAJ PRZYWITANIE */}
       </div>
     );
   }
