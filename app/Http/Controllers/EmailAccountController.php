@@ -92,7 +92,7 @@ class EmailAccountController extends Controller
                 foreach($folders as $folder){
                     $messages = $folder->messages()->all()->setFetchOrder("desc")->limit(20,0)->get();
                     $unreadCount = $folder->messages()->unseen()->count();
-                    $allFolders[$emailAccount->email][$folder->name] = [
+                    $allFolders[$emailAccount->id][$emailAccount->email][$folder->name] = [
                         'name' => $folder->name,
                         'path' => $folder->path,
                         'unreadCount' => $unreadCount,
