@@ -4,9 +4,10 @@ import { useForm, usePage } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import EmailFolderList from '@/Pages/Email/EmailFolderList';
 import { Mail, Send, Star, Archive, Trash2, Settings, Menu, Search } from 'lucide-react';
-import JsonNode from './JsonNode'; // Upewnij się, że JsonNode jest zaimportowany
+import JsonNode from './JsonNode';
 import { PageProps } from '@/types';
-import EmailMessageView from '@/Pages/Email/EmailMessageView'; // Importuj nowy komponent
+import EmailMessageView from '@/Pages/Email/EmailMessageView';
+import NewMessagePopup from '@/Pages/Email/NewMessagePopup';
 
 export default function Home({ allFolders, status }: PageProps<{ allFolders?: any, status?: string }>) {
   const { props } = usePage();
@@ -16,6 +17,7 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
   const [selectedMessageAccountId, setSelectedMessageAccountId] = useState(null);
   const [selectedMessageFolderName, setselectedMessageFolderName] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false); // Add this state
 
   const { data, setData, post, errors, processing, recentlySuccessful } = useForm({
     account_id: selectedMessageAccountId,
@@ -32,7 +34,7 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
 
   const handleMessageClick = (message) => {
     setSelectedMessage(message);
-    
+
     if (!message.seen) {
       post(route('poczta.setReadForMessage', { uid: message.uid, folder_name: selectedMessageFolderName }));
     }
@@ -40,6 +42,14 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
 
   const handleBackClick = () => {
     setSelectedMessage(null);
+  };
+
+  const handleNewMessageClick = () => {
+    setIsPopupVisible(true);
+  };
+
+  const handlePopupClose = () => {
+    setIsPopupVisible(false);
   };
 
   if (!user) {
@@ -86,7 +96,7 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
       </header>
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-4">
-          <button className="w-full bg-blue-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 dark:hover:bg-blue-500">
+          <button className="w-full bg-blue-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 dark:hover:bg-blue-500" onClick={handleNewMessageClick}>
             Nowa wiadomość
           </button>
           <nav className="mt-6">
@@ -118,6 +128,7 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
           )}
         </main>
       </div>
+      {isPopupVisible && <NewMessagePopup onClose={handlePopupClose} />}
     </div>
   );
 }
