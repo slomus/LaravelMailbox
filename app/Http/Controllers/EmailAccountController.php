@@ -72,23 +72,29 @@ class EmailAccountController extends Controller
                 $folders = $client->getFolders($hierarchical = true);
     
                 foreach($folders as $folder){
-                    $messages = $folder->messages()->all()->limit(1, 0)->get();
+                    $messages = $folder->messages()->all()->setFetchOrder("desc")->limit(20,0)->get();
+                    $unreadCount = $folder->messages()->unseen()->count();
                     $allFolders[$emailAccount->email][$folder->name] = [
                         'name' => $folder->name,
                         'path' => $folder->path,
+                        'unreadCount' => $unreadCount,
                         'messages' => $messages->map(function ($message) {
+                            $flags = $message->getFlags()->toArray(); 
+                            $isSeen = in_array('Seen', $flags) || in_array('\Seen', $flags);
                             return [
                                 'uid' => $message->getUid(),
                                 'subject' => (string) $message->getSubject() ?? 'Bez tematu', // Konwertujemy na tekst
                                 'header' => $message->getHeader(),
                                 'from' => (string) $message->getFrom()[0]->mail ?? 'Brak nadawcy', // Konwertujemy na tekst
                                 'body' => (string) $message->getHTMLBody() ?? 'Brak treści', // Konwertujemy na tekst
+                                'seen' => $isSeen,
                             ];
                         })->toArray(), // Zamień kolekcję na tablicę
                     ];
                     
                     
                 }
+                
             } catch (Exception $e) {
                 $allFolders[$emailAccount->email] = ['error' => $e->getMessage()];
             }

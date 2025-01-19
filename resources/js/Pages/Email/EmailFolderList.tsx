@@ -11,6 +11,7 @@ type Message = {
 type Folder = {
   name: string;
   path: string;
+  unreadCount: number;
   messages: Message[];
 };
 
@@ -54,7 +55,7 @@ const EmailFolderList: React.FC<EmailFolderListProps> = ({ folders, onFolderClic
                   <span className="ml-2">{folderName}</span>
                 </div>
                 <span className="text-base bg-blue-600 font-bold rounded-full px-2 py-1 min-w-8 min-h-8 justify-center items-center flex">
-                  {folders[email][folderName].messages.length}
+                  {folders[email][folderName].unreadCount}
                 </span>
               </li>
             ))}
