@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
-import { usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import EmailFolderList from '@/Pages/Email/EmailFolderList';
 import { Mail, Send, Star, Archive, Trash2, Settings, Menu, Search } from 'lucide-react';
@@ -13,17 +13,29 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
   const user = props.auth.user;
   const [jsonData, setJsonData] = useState(allFolders);
   const [selectedMessages, setSelectedMessages] = useState([]);
+  const [selectedMessageAccountId, setSelectedMessageAccountId] = useState(null);
+  const [selectedMessageFolderName, setselectedMessageFolderName] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
 
-  const handleFolderClick = (messages) => {
+  const { data, setData, post, errors, processing, recentlySuccessful } = useForm({
+    account_id: selectedMessageAccountId,
+  });
+
+  const handleFolderClick = (accountId, folderName, messages) => {
     console.log('Selected folder messages:', messages);
     setSelectedMessages(Array.isArray(messages) ? messages : []);
+    setSelectedMessageAccountId(accountId);
+    setselectedMessageFolderName(folderName);
     setSelectedMessage(null);
+    setData('account_id', accountId);
   };
 
   const handleMessageClick = (message) => {
-    console.log('Selected message:', message);
     setSelectedMessage(message);
+    
+    if (!message.seen) {
+      post(route('poczta.setReadForMessage', { uid: message.uid, folder_name: selectedMessageFolderName }));
+    }
   };
 
   const handleBackClick = () => {
@@ -62,7 +74,7 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
                   Konto
                 </Dropdown.Link>
                 <Dropdown.Link href={route('profiles.email')} className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                  Konto e-mail
+                  Konta e-mail
                 </Dropdown.Link>
                 <Dropdown.Link href={route('logout')} method="post" as="button" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                   Wyloguj się
@@ -91,7 +103,7 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
             </>
           ) : selectedMessages.length > 0 ? (
             <div className='flex flex-wrap gap-4'>
-              {selectedMessages.map((message) => {
+              {selectedMessages.reverse().map((message) => {
                 const messageClassName = `cursor-pointer text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 dark:hover:bg-blue-500 max-w-80 ${message.seen ? 'bg-gray-600' : 'font-bold bg-blue-600'}`;
                 return (
                 <div key={message.uid} onClick={() => handleMessageClick(message)} className={messageClassName}>

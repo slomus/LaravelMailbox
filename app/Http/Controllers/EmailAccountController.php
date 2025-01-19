@@ -120,11 +120,48 @@ class EmailAccountController extends Controller
     
         // Logowanie struktury danych
         Log::info('All Folders Data: ', $allFolders);
+
+        $client->disconnect();
     
         return Inertia::render('Home', [
             'allFolders' => $allFolders,
             'status' => session('status'),
         ]);
+    }
+
+
+    public function setReadForMessage($uid, $folder_name, Request $request)
+    {
+        $emailAccount = EmailAccount::where('id', $request->account_id)->first();
+
+        //dd(['email_account' => $emailAccount, 'uid' => $uid, 'folder_name' => $folder_name]);
+
+        try{
+            $client = Client::make([
+                'host' => $emailAccount->imap_host,
+                'port' => $emailAccount->imap_port,
+                'encryption' => $emailAccount->encryption,
+                'validate_cert' => true,
+                'username' => $emailAccount->email,
+                'password' => decrypt($emailAccount->password),
+                'protocol' => 'imap',
+            ]);
+
+            $client->connect();
+            $folder = $client->getFolder($folder_name);
+            $message = $folder->query()->getMessageByUid($uid);
+
+            if($message){
+                $message->setFlag('Seen');
+            }
+        }catch(Exception $e){
+            dd($e);
+            Log::error('Error while marking message: ' . $e->getMessage());
+        }
+
+        $client->disconnect();
+
+        return Redirect::route('poczta.folders');
     }
     
 }
