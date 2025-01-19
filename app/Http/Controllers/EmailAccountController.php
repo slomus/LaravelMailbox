@@ -20,7 +20,7 @@ class EmailAccountController extends Controller
     public function edit(Request $request): Response
     {
         $emailAccounts = EmailAccount::where('user_id', $request->user()->id)->get();
-        return Inertia::render('XXX', [
+        return Inertia::render('EmailAccountsView', [
             'emailAccounts' => $emailAccounts,
             'status' => session('status'),
         ]);
@@ -41,15 +41,33 @@ class EmailAccountController extends Controller
         return Redirect::route('profiles.email');
     }
 
-    public function update(EmailUpdateRequest $emailUpdateRequest)
-    {
-        $validated = $emailUpdateRequest->validated();
+   public function update(EmailUpdateRequest $emailUpdateRequest)
+   {
+    $validated = $emailUpdateRequest->validated();
 
-        $emailAccount = EmailAccount::where('user_id', $emailUpdateRequest->user()->id)->firstOrFail(); //j.w.
-        $emailAccount->update($validated);
+    if (empty($validated['password'])) {
+        unset($validated['password']);
+    }
+
+    $emailAccount = EmailAccount::where('user_id', $emailUpdateRequest->user()->id)
+        ->where('id', $emailUpdateRequest->route('id'))
+        ->firstOrFail();
+
+    $emailAccount->update($validated);
+    return Redirect::route('profiles.email');
+   }
+
+    public function destroy($id)
+    {
+        $emailAccount = EmailAccount::where('user_id', Auth::id())
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $emailAccount->delete();
 
         return Redirect::route('profiles.email');
     }
+
 
     public function getAllFolders(Request $request)
     {

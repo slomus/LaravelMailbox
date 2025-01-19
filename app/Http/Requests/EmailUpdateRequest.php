@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class EmailUpdateRequest extends FormRequest
 {
@@ -23,11 +24,11 @@ class EmailUpdateRequest extends FormRequest
     {
         $user_id = auth()->id();
         return [
-            'email' => "required|email|unique:email_accounts,email,{$user_id},id",
-            'password' => 'required',
+            'email' => ['required', 'email', Rule::unique('email_accounts')->ignore($this->route('id'))],
+            'password' => 'nullable',
             'imap_host' => 'required',
             'imap_port' => 'required',
-            'encryption' => 'nullable|string',
+            'encryption' => 'required',
         ];
     }
 }
