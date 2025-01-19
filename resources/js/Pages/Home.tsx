@@ -90,13 +90,16 @@ export default function Home({ allFolders, status }: PageProps<{ allFolders?: an
               <EmailMessageView message={selectedMessage} />
             </>
           ) : selectedMessages.length > 0 ? (
-            <div className='bg-blue-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 dark:hover:bg-blue-500 max-w-80'>
-              {selectedMessages.map((message) => (
-                <div key={message.uid} onClick={() => handleMessageClick(message)} className="cursor-pointer">
+            <div className='flex flex-wrap gap-4'>
+              {selectedMessages.map((message) => {
+                const messageClassName = `cursor-pointer text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 dark:hover:bg-blue-500 max-w-80 ${message.seen ? 'bg-gray-600' : 'font-bold bg-blue-600'}`;
+                return (
+                <div key={message.uid} onClick={() => handleMessageClick(message)} className={messageClassName}>
                   <h3>{message.subject}</h3>
                   <p>{message.from}</p>
                 </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <JsonNode data={jsonData} />
